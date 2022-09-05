@@ -45,6 +45,8 @@ const login: React.FC<loginProps> = ({}) => {
             isClosable: true,
           });
           sessionStorage.setItem("jwt", response.data.access_token);
+          sessionStorage.setItem("expiry", response.data.expiresIn);
+
           router.push("/");
         } else {
           toast({
