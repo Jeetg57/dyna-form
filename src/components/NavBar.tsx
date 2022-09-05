@@ -16,10 +16,11 @@ import {
   useColorModeValue,
   useDisclosure,
 } from "@chakra-ui/react";
+import { useRouter } from "next/router";
 import React, { ReactNode } from "react";
+import { handleAuthSSR, logout } from "../utils/auth";
 import { DarkModeSwitch } from "./DarkModeSwitch";
 
-interface NavBarProps {}
 const Links = ["Dashboard", "Projects", "Team"];
 
 const NavLink = ({ children }: { children: ReactNode }) => (
@@ -36,7 +37,8 @@ const NavLink = ({ children }: { children: ReactNode }) => (
     {children}
   </Link>
 );
-export const NavBar: React.FC<NavBarProps> = ({}) => {
+export const NavBar = () => {
+  const router = useRouter();
   const { isOpen, onOpen, onClose } = useDisclosure();
   return (
     <>
@@ -81,7 +83,14 @@ export const NavBar: React.FC<NavBarProps> = ({}) => {
                 <MenuItem>Link 1</MenuItem>
                 <MenuItem>Link 2</MenuItem>
                 <MenuDivider />
-                <MenuItem>Link 3</MenuItem>
+                <MenuItem
+                  onClick={() => {
+                    logout();
+                    router.push("/");
+                  }}
+                >
+                  Logout
+                </MenuItem>
                 <MenuDivider />
                 <Box display={"flex"} justifyContent="end" mr={3}>
                   <DarkModeSwitch />

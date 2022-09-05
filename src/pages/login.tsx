@@ -17,6 +17,7 @@ import axios, { AxiosError, AxiosResponse } from "axios";
 import React from "react";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/router";
+import { setLogin } from "../utils/auth";
 
 interface loginProps {}
 
@@ -44,8 +45,7 @@ const login: React.FC<loginProps> = ({}) => {
             duration: 9000,
             isClosable: true,
           });
-          sessionStorage.setItem("jwt", response.data.access_token);
-          sessionStorage.setItem("expiry", response.data.expiresIn);
+          setLogin({ token: response.data.access_token });
 
           router.push("/");
         } else {
