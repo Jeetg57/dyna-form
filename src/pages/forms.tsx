@@ -1,9 +1,15 @@
 import { Container, Heading } from "@chakra-ui/react";
-import React from "react";
+import { useRouter } from "next/router";
+import React, { useEffect } from "react";
 import { AllForms } from "../components/AllForms";
-import { handleAuthSSR } from "../utils/auth";
+import { useAuth } from "../utils/AuthContext";
 
 const forms = ({ data }) => {
+  const { isAuthenticated } = useAuth();
+  const router = useRouter();
+  useEffect(() => {
+    if (!isAuthenticated) router.replace("/login?next=/forms");
+  });
   return (
     <Container maxW="80%" my={5}>
       <Heading>{data?.username}</Heading>
@@ -11,15 +17,5 @@ const forms = ({ data }) => {
     </Container>
   );
 };
-forms.getInitialProps = async (ctx: {
-  res: {
-    writeHead: (arg0: number, arg1: { Location: string }) => void;
-    end: () => void;
-  };
-}) => {
-  const data = await handleAuthSSR(ctx);
-  console.log(data);
 
-  return { data };
-};
 export default forms;

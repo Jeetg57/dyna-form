@@ -17,58 +17,76 @@ import axios, { AxiosError, AxiosResponse } from "axios";
 import React from "react";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/router";
-import { setLogin } from "../utils/auth";
+import { useAuth } from "../utils/AuthContext";
 
 interface loginProps {}
-
+interface loginForm {
+  email: string;
+  password: string;
+}
 const login: React.FC<loginProps> = ({}) => {
   const router = useRouter();
+
   if (typeof window !== "undefined") {
     if (window.sessionStorage.getItem("jwt")) {
       router.push("/");
     }
   }
+  const { loginUser } = useAuth();
   const { register, handleSubmit } = useForm();
   const toast = useToast();
-  const onSubmitForm = (data: any) => {
-    axios({
-      method: "post",
-      url: "http://localhost:5000/auth/signin",
-      data: data,
-    })
-      .then(function (response: AxiosResponse) {
-        if (response.data.access_token) {
-          toast({
-            title: "Successfully signed in.",
-            //   description: response.data.access_token,
-            status: "success",
-            duration: 9000,
-            isClosable: true,
-          });
-          setLogin({ token: response.data.access_token });
-
-          router.push("/");
-        } else {
-          toast({
-            title: "Error",
-            description: "Can not sign in at the moment",
-            status: "error",
-            duration: 9000,
-            isClosable: true,
-          });
-        }
-      })
-      .catch(function (err: AxiosError) {
-        toast({
-          title: err.response.data["error"],
-          description: err.response.data["description"],
-          status: "error",
-          duration: 9000,
-          isClosable: true,
-        });
-        console.log(err.response);
+  const onSubmitForm = async (data: loginForm) => {
+    const loginAction = await loginUser(
+      data.email,
+      data.password,
+      router.query.next
+    );
+    console.log(loginAction);
+    if (!loginAction) {
+      toast({
+        title: "Error",
+        description: "Can not sign in at the moment",
+        status: "error",
+        duration: 9000,
+        isClosable: true,
       });
+    }
   };
+  //   axios({
+  //     method: "post",
+  //     url: "http://localhost:5000/auth/signin",
+  //     data: data,
+  //   })
+  //     .then(function (response: AxiosResponse) {
+  //       if (response.data.access_token) {
+  //         toast({
+  //           title: "Successfully signed in.",
+  //           //   description: response.data.access_token,
+  //           status: "success",
+  //           duration: 9000,
+  //           isClosable: true,
+  //         });
+  //         router.push("/");
+  //       } else {
+  //         toast({
+  //           title: "Error",
+  //           description: "Can not sign in at the moment",
+  //           status: "error",
+  //           duration: 9000,
+  //           isClosable: true,
+  //         });
+  //       }
+  //     })
+  //     .catch(function (err: AxiosError) {
+  //       toast({
+  //         title: err.response.data["error"],
+  //         description: err.response.data["description"],
+  //         status: "error",
+  //         duration: 9000,
+  //         isClosable: true,
+  //       });
+  //     });
+  // };
   return (
     <Flex
       minH={"100vh"}

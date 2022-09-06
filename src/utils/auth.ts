@@ -27,11 +27,9 @@ export const handleAuthSSR = async (ctx: any) => {
     const response = await axios.get(url, {
       headers: { Authorization: `Bearer ${token}` },
     });
-    console.log(response);
     if (!response.data) {
       return redirectOnError();
     }
-    return response.data;
   } catch (error) {
     /* eslint-disable no-console */
     console.log("Error: ", error);
@@ -42,9 +40,10 @@ export const handleAuthSSR = async (ctx: any) => {
 
 export const setLogin = async ({ token }) => {
   // Cookie will expire after 24h
+
   cookies.set("token", token, { maxAge: 60 * 60 * 15 });
 };
 
-export const logout = () => {
+export const setLogout = () => {
   cookies.remove("token");
 };
