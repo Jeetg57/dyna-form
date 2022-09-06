@@ -6,6 +6,7 @@ import {
   Input,
   Link,
   SimpleGrid,
+  Skeleton,
   Text,
 } from "@chakra-ui/react";
 import { useQuery } from "@tanstack/react-query";
@@ -42,7 +43,11 @@ export const AllForms: React.FC<AllFormsProps> = ({}) => {
   if (isLoading) return <Box>Loading...</Box>;
 
   if (error instanceof Error)
-    return <Box>An error has occurred: ${error.message}</Box>;
+    return (
+      <Skeleton>
+        <Box>An error has occurred: ${error.message}</Box>
+      </Skeleton>
+    );
 
   if (data) {
     if (data.length == 0) {

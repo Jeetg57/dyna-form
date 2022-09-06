@@ -1,5 +1,6 @@
 // contexts/auth.js
 
+import { AxiosError } from "axios";
 import { useRouter } from "next/router";
 import React, { createContext, useState, useContext, useEffect } from "react";
 import { useCookies } from "react-cookie";
@@ -24,13 +25,15 @@ export const AuthProvider = ({ children }) => {
   const router = useRouter();
   useEffect(() => {
     async function loadUserFromCookies() {
-      if (token) {
-        console.log("Got a token in the cookies, let's see if it is valid");
-        console.log(token);
+      if (token.token) {
         api.defaults.headers.common["Authorization"] = `Bearer ${token.token}`;
-        const { data: user } = await api.get("user/me");
-        console.log(user);
-        if (user) setUser(user);
+        try {
+          const { data: user } = await api.get("user/me");
+          if (user) setUser(user);
+        } catch (error) {
+          removeToken("token", {});
+          setUser(null);
+        }
       }
       setLoading(false);
     }
@@ -45,14 +48,12 @@ export const AuthProvider = ({ children }) => {
       });
       console.log(access_token);
       if (access_token.access_token) {
-        console.log("Got token", access_token.access_token);
-        setToken("token", access_token.access_token, { maxAge: 60 });
+        setToken("token", access_token.access_token, { maxAge: 60 * 60 * 20 });
         api.defaults.headers.common[
           "Authorization"
         ] = `Bearer ${access_token.access_token}`;
         const { data: user } = await api.get("user/me");
         setUser(user);
-        console.log("Got user", user);
         if (user !== null) {
           console.log(next);
           if (next !== undefined) {

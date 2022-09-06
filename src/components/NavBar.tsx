@@ -12,19 +12,22 @@ import {
   MenuDivider,
   MenuItem,
   MenuList,
+  Skeleton,
   Stack,
   useColorModeValue,
   useDisclosure,
 } from "@chakra-ui/react";
-import { useRouter } from "next/router";
 import React, { ReactNode } from "react";
-import { setLogout } from "../utils/auth";
 import { useAuth } from "../utils/AuthContext";
 import { DarkModeSwitch } from "./DarkModeSwitch";
 
-const Links = ["Dashboard", "Projects", "Team"];
+const Links = [
+  { label: "Dashboard", value: "/" },
+  { label: "Forms", value: "/forms" },
+  { label: "New Form", value: "/form/create" },
+];
 
-const NavLink = ({ children }: { children: ReactNode }) => (
+const NavLink = ({ url, children }: { url: string; children: ReactNode }) => (
   <Link
     px={2}
     py={1}
@@ -33,17 +36,16 @@ const NavLink = ({ children }: { children: ReactNode }) => (
       textDecoration: "none",
       bg: useColorModeValue("gray.200", "gray.700"),
     }}
-    href={"#"}
+    href={url}
   >
     {children}
   </Link>
 );
 export const NavBar = () => {
-  const router = useRouter();
-  const { isAuthenticated, user, logout } = useAuth();
+  const { user, logout, loading } = useAuth();
   const { isOpen, onOpen, onClose } = useDisclosure();
   return (
-    <>
+    <Skeleton isLoaded={!loading}>
       <Box bg={useColorModeValue("gray.100", "gray.900")} px={4}>
         <Flex h={16} alignItems={"center"} justifyContent={"space-between"}>
           <IconButton
@@ -61,7 +63,9 @@ export const NavBar = () => {
               display={{ base: "none", md: "flex" }}
             >
               {Links.map((link) => (
-                <NavLink key={link}>{link}</NavLink>
+                <NavLink url={link.value} key={link.label}>
+                  {link.label}
+                </NavLink>
               ))}
             </HStack>
           </HStack>
@@ -84,17 +88,13 @@ export const NavBar = () => {
                   <MenuItem>{user.firstName + " " + user.lastName}</MenuItem>
                   <MenuItem>Link 2</MenuItem>
                   <MenuDivider />
-                  {user ? (
-                    <MenuItem
-                      onClick={() => {
-                        logout();
-                      }}
-                    >
-                      Logout
-                    </MenuItem>
-                  ) : (
-                    <></>
-                  )}
+                  <MenuItem
+                    onClick={() => {
+                      logout();
+                    }}
+                  >
+                    Logout
+                  </MenuItem>
                   <MenuDivider />
                   <Box display={"flex"} justifyContent="end" mr={3}>
                     <DarkModeSwitch />
@@ -109,12 +109,14 @@ export const NavBar = () => {
           <Box pb={4} display={{ md: "none" }}>
             <Stack as={"nav"} spacing={4}>
               {Links.map((link) => (
-                <NavLink key={link}>{link}</NavLink>
+                <NavLink url={link.value} key={link.label}>
+                  {link.label}
+                </NavLink>
               ))}
             </Stack>
           </Box>
         ) : null}
       </Box>
-    </>
+    </Skeleton>
   );
 };
