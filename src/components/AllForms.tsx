@@ -1,15 +1,27 @@
+import { EditIcon } from "@chakra-ui/icons";
 import {
   Box,
+  Button,
   FormControl,
   FormLabel,
   Heading,
+  IconButton,
   Input,
   Link,
   SimpleGrid,
   Skeleton,
+  Table,
+  TableCaption,
+  TableContainer,
+  Tbody,
+  Td,
   Text,
+  Th,
+  Thead,
+  Tr,
 } from "@chakra-ui/react";
 import { useQuery } from "@tanstack/react-query";
+import { useRouter } from "next/router";
 import React from "react";
 
 export interface FormField {
@@ -37,6 +49,7 @@ export interface Form {
 interface AllFormsProps {}
 
 export const AllForms: React.FC<AllFormsProps> = ({}) => {
+  const router = useRouter();
   const { isLoading, error, data } = useQuery(["repoData"], () =>
     fetch("http://localhost:5000/form/", {}).then((res) => res.json())
   );
@@ -57,19 +70,42 @@ export const AllForms: React.FC<AllFormsProps> = ({}) => {
         </Box>
       );
     }
-    return data.map((form: Form) => {
-      return (
-        <Box key={form.id} shadow={"sm"} my={4} p={4} rounded={"md"}>
-          <Link>
-            <SimpleGrid columns={4} spacing={10}>
-              <Text>{form.title}</Text>
-              <Text>{form.customerName}</Text>
-              <Text>{form.customerCompanyName}</Text>
-              <Text>{form.formFields.length}</Text>
-            </SimpleGrid>
-          </Link>
-        </Box>
-      );
-    });
+    return (
+      <TableContainer>
+        <Table variant="simple">
+          <Thead>
+            <Tr>
+              <Th>Title</Th>
+              <Th>Customer Name</Th>
+              <Th>Company Name</Th>
+              <Th>Fields</Th>
+              <Th>Actions</Th>
+            </Tr>
+          </Thead>
+          <Tbody>
+            {data.map((form: Form) => {
+              return (
+                <Tr key={form.id}>
+                  <Td>{form.title}</Td>
+                  <Td>{form.customerName}</Td>
+                  <Td>{form.customerCompanyName}</Td>
+                  <Td>{form.formFields.length}</Td>
+                  <Td>
+                    <IconButton
+                      variant="solid"
+                      colorScheme="gray"
+                      isRound={true}
+                      aria-label="Send email"
+                      onClick={() => router.push(`/form/${form.id}`)}
+                      icon={<EditIcon />}
+                    />
+                  </Td>
+                </Tr>
+              );
+            })}
+          </Tbody>
+        </Table>
+      </TableContainer>
+    );
   }
 };

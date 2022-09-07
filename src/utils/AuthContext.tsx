@@ -6,6 +6,16 @@ import React, { createContext, useState, useContext, useEffect } from "react";
 import { useCookies } from "react-cookie";
 import api from "./api";
 
+interface User {
+  id: number;
+  firstName: string;
+  lastName: string;
+  username: string;
+  email: string;
+  roleId: string;
+  rmCode: string;
+}
+
 const AuthContext = createContext({
   isAuthenticated: false,
   user: null,
@@ -19,7 +29,7 @@ const AuthContext = createContext({
 });
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [token, setToken, removeToken] = useCookies(["token"]);
   const router = useRouter();
@@ -55,7 +65,6 @@ export const AuthProvider = ({ children }) => {
         const { data: user } = await api.get("user/me");
         setUser(user);
         if (user !== null) {
-          console.log(next);
           if (next !== undefined) {
             router.push(next);
           } else {

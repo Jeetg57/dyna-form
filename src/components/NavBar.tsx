@@ -70,6 +70,11 @@ export const NavBar = () => {
             </HStack>
           </HStack>
           <Flex alignItems={"center"}>
+            {!user && (
+              <NavLink url="/login" key={"login"}>
+                Login
+              </NavLink>
+            )}
             {user && (
               <Menu>
                 <MenuButton
