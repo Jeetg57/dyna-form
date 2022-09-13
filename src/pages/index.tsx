@@ -3,6 +3,8 @@ import { useAuth } from "../utils/AuthContext";
 
 const Index = () => {
   const { user, loading, isAuthenticated } = useAuth();
+  if (isAuthenticated && !loading) {
+  }
   return (
     <Container maxW="80%" my={6}>
       <Skeleton isLoaded={!loading}>
