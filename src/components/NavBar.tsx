@@ -22,9 +22,9 @@ import { useAuth } from "../utils/AuthContext";
 import { DarkModeSwitch } from "./DarkModeSwitch";
 
 const Links = [
-  { label: "Dashboard", value: "/" },
-  { label: "Forms", value: "/forms" },
-  { label: "New Form", value: "/form/create" },
+  { label: "Dashboard", value: "/", auth: false },
+  { label: "Forms", value: "/forms", auth: true },
+  { label: "New Form", value: "/form/create", auth: true },
 ];
 
 const NavLink = ({ url, children }: { url: string; children: ReactNode }) => (
@@ -62,11 +62,20 @@ export const NavBar = () => {
               spacing={4}
               display={{ base: "none", md: "flex" }}
             >
-              {Links.map((link) => (
-                <NavLink url={link.value} key={link.label}>
-                  {link.label}
-                </NavLink>
-              ))}
+              {Links.map((link) => {
+                if (link.auth && user) {
+                  return (
+                    <NavLink url={link.value} key={link.label}>
+                      {link.label}
+                    </NavLink>
+                  );
+                } else if (!link.auth)
+                  return (
+                    <NavLink url={link.value} key={link.label}>
+                      {link.label}
+                    </NavLink>
+                  );
+              })}
             </HStack>
           </HStack>
           <Flex alignItems={"center"}>

@@ -46,110 +46,111 @@ interface DynaFormBlueprint {
 export const FormBlueprint: React.FC<FormBlueprintProps> = ({}) => {
   const router = useRouter();
   const { isAuthenticated, loading, user } = useAuth();
-  if (isAuthenticated && !loading) {
-    const [formValues, setFormValues] = useState([]);
-    const toast = useToast();
-    const [form, setForm] = useState();
-    const [assignee, setAssignee] = useState([]);
-    const getAssignees = async () => {
-      const assignees = await api.get("/form/assignees");
-      if (assignees.data) {
-        assignees.data.map((assigneeItem) => {
-          let assigneeSelect = {
-            value: assigneeItem.id,
-            label:
-              assigneeItem.id +
-              " - " +
-              assigneeItem.firstName +
-              " " +
-              assigneeItem.lastName,
-          };
-          setAssignee((assignee) => [...assignee, assigneeSelect]);
-        });
-      }
-    };
-    const { register, handleSubmit } = useForm();
-    const {
-      control,
-      register: registerForm,
-      handleSubmit: handleSubmit2,
-    } = useForm();
-    const formFieldExists = (formValues, data: DynaFormFieldsBlueprint) => {
-      let exists = false;
-      formValues.forEach((value: { title: string }) => {
-        if (value.title === data.title) {
-          exists = true;
-        }
+  const [formValues, setFormValues] = useState([]);
+  const toast = useToast();
+  const [form, setForm] = useState();
+  const [assignee, setAssignee] = useState([]);
+  const { register, handleSubmit } = useForm();
+  const {
+    control,
+    register: registerForm,
+    handleSubmit: handleSubmit2,
+  } = useForm();
+
+  const getAssignees = async () => {
+    const assignees = await api.get("/form/assignees");
+    if (assignees.data) {
+      assignees.data.map((assigneeItem) => {
+        let assigneeSelect = {
+          value: assigneeItem.id,
+          label:
+            assigneeItem.id +
+            " - " +
+            assigneeItem.firstName +
+            " " +
+            assigneeItem.lastName,
+        };
+        setAssignee((assignee) => [...assignee, assigneeSelect]);
       });
-      return exists;
+    }
+  };
+
+  const formFieldExists = (formValues, data: DynaFormFieldsBlueprint) => {
+    let exists = false;
+    formValues.forEach((value: { title: string }) => {
+      if (value.title === data.title) {
+        exists = true;
+      }
+    });
+    return exists;
+  };
+  const onSubmit = (data: DynaFormFieldsBlueprint) => {
+    console.log(formValues);
+    const exists = formFieldExists(formValues, data);
+    console.log(exists);
+    if (!exists) {
+      setFormValues((formValues) => [...formValues, { ...data }]);
+    } else {
+      toast({
+        title: "Error",
+        description: `This Key [${data.title}] has already been used.`,
+        status: "error",
+        duration: 9000,
+        isClosable: true,
+      });
+    }
+  };
+  const onSubmitForm = (data: DynaFormBlueprint) => {
+    data.assignedTo = data.assignedTo["value"];
+    let obj = {
+      ...data,
+      formFields: { ...formValues },
     };
-    const onSubmit = (data: DynaFormFieldsBlueprint) => {
-      console.log(formValues);
-      const exists = formFieldExists(formValues, data);
-      console.log(exists);
-      if (!exists) {
-        setFormValues((formValues) => [...formValues, { ...data }]);
-      } else {
+    console.log(obj);
+    axios({
+      method: "post",
+      url: "http://localhost:5000/form",
+      data: obj,
+    })
+      .then(function () {
         toast({
-          title: "Error",
-          description: `This Key [${data.title}] has already been used.`,
+          title: "Form created.",
+          status: "success",
+          duration: 9000,
+          isClosable: true,
+        });
+      })
+      .catch(function (err: AxiosError) {
+        toast({
+          title: err.response.data["error"],
+          description: err.response.data["description"],
           status: "error",
           duration: 9000,
           isClosable: true,
         });
-      }
-    };
-    const onSubmitForm = (data: DynaFormBlueprint) => {
-      data.assignedTo = data.assignedTo["value"];
-      let obj = {
-        ...data,
-        formFields: { ...formValues },
-      };
-      console.log(obj);
-      axios({
-        method: "post",
-        url: "http://localhost:5000/form",
-        data: obj,
-      })
-        .then(function () {
-          toast({
-            title: "Form created.",
-            status: "success",
-            duration: 9000,
-            isClosable: true,
-          });
-        })
-        .catch(function (err: AxiosError) {
-          toast({
-            title: err.response.data["error"],
-            description: err.response.data["description"],
-            status: "error",
-            duration: 9000,
-            isClosable: true,
-          });
-          console.log(err.response);
-        });
-      // axios
-      //   .post("http://localhost:5000/form")
-      //   .then(function (response) {
-      //     console.log(response.data);
-      //   })
-      //   .catch(function (error) {
-      //     console.log(error);
-      //   });
-    };
+        console.log(err.response);
+      });
+    // axios
+    //   .post("http://localhost:5000/form")
+    //   .then(function (response) {
+    //     console.log(response.data);
+    //   })
+    //   .catch(function (error) {
+    //     console.log(error);
+    //   });
+  };
 
-    const RemoveItem = (index: number) => {
-      console.log(index);
-      let items = [...formValues];
-      items.splice(index, 1);
-      setFormValues(items);
-    };
-    useEffect(() => {
-      setAssignee([]);
+  const RemoveItem = (index: number) => {
+    console.log(index);
+    let items = [...formValues];
+    items.splice(index, 1);
+    setFormValues(items);
+  };
+
+  if (isAuthenticated && !loading) {
+    if (assignee.length === 0) {
       getAssignees();
-    }, []);
-
+    }
     return (
       <Box>
         <Box p={5} shadow="md" m={5}>
@@ -297,9 +298,6 @@ export const FormBlueprint: React.FC<FormBlueprintProps> = ({}) => {
         )}
       </Box>
     );
-  } else if (!isAuthenticated && !loading) {
-    router.push("/login?next=/form/create");
-    return;
   } else {
     return <Box>Loading...</Box>;
   }

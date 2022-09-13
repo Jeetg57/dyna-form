@@ -1,5 +1,3 @@
-// contexts/auth.js
-
 import { AxiosError } from "axios";
 import { useRouter } from "next/router";
 import React, { createContext, useState, useContext, useEffect } from "react";
@@ -41,6 +39,7 @@ export const AuthProvider = ({ children }) => {
           const { data: user } = await api.get("user/me");
           if (user) setUser(user);
         } catch (error) {
+          console.log(error);
           removeToken("token", {});
           setUser(null);
         }
@@ -58,7 +57,7 @@ export const AuthProvider = ({ children }) => {
       });
       console.log(access_token);
       if (access_token.access_token) {
-        setToken("token", access_token.access_token, { maxAge: 60 * 60 * 20 });
+        setToken("token", access_token.access_token, { maxAge: 900 });
         api.defaults.headers.common[
           "Authorization"
         ] = `Bearer ${access_token.access_token}`;
