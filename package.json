@@ -12,10 +12,12 @@
     "@chakra-ui/theme-tools": "^2.0.2",
     "@emotion/react": "^11.9.0",
     "@emotion/styled": "^11.9.0",
+    "@react-pdf/renderer": "^3.0.0",
     "@sentry/nextjs": "^7.12.1",
     "@tanstack/react-query": "^4.2.3",
     "axios": "^0.27.2",
     "axios-cache-adapter": "^2.7.3",
+    "chakra-react-select": "^4.2.2",
     "framer-motion": "^6.3.0",
     "helmet": "^6.0.0",
     "next": "latest",
@@ -25,7 +27,8 @@
     "react-cookie": "^4.1.1",
     "react-dom": "^18.2.0",
     "react-hook-form": "^7.33.1",
-    "react-select": "^5.4.0"
+    "react-select": "^5.4.0",
+    "swr": "^1.3.0"
   },
   "devDependencies": {
     "@types/node": "^18.7.6",

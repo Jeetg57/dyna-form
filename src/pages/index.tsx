@@ -1,17 +1,16 @@
 import { Container, Heading, Skeleton } from "@chakra-ui/react";
+import { Dashboard } from "../components/Dashboard";
 import { useAuth } from "../utils/AuthContext";
 
 const Index = () => {
   const { user, loading, isAuthenticated } = useAuth();
-  if (isAuthenticated && !loading) {
+  if (loading) {
+    return;
   }
-  return (
-    <Container maxW="80%" my={6}>
-      <Skeleton isLoaded={!loading}>
-        <Heading>Welcome {user?.firstName}</Heading>
-      </Skeleton>
-    </Container>
-  );
+  if (isAuthenticated && !loading) {
+  } else {
+    return <Dashboard />;
+  }
 };
 
 export default Index;

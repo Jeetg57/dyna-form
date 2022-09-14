@@ -8,7 +8,6 @@ import {
   Heading,
   IconButton,
   Input,
-  Select,
   Table,
   TableContainer,
   Tbody,
@@ -20,11 +19,11 @@ import {
   Tr,
   useToast,
 } from "@chakra-ui/react";
-import axios, { AxiosError } from "axios";
+import { AxiosError } from "axios";
+import { Select } from "chakra-react-select";
 import { useRouter } from "next/router";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import ReactSelect from "react-select";
 import api from "../utils/api";
 import { useAuth } from "../utils/AuthContext";
 
@@ -43,6 +42,11 @@ interface DynaFormBlueprint {
   customerCompanyName: string;
   assignedTo: number;
 }
+const typeOptions = [
+  { value: "file", label: "File Upload" },
+  { value: "text", label: "Text" },
+];
+
 export const FormBlueprint: React.FC<FormBlueprintProps> = ({}) => {
   const router = useRouter();
   const { isAuthenticated, loading, user } = useAuth();
@@ -50,7 +54,7 @@ export const FormBlueprint: React.FC<FormBlueprintProps> = ({}) => {
   const toast = useToast();
   const [form, setForm] = useState();
   const [assignee, setAssignee] = useState([]);
-  const { register, handleSubmit } = useForm();
+  const { control: control2, register, handleSubmit } = useForm();
   const {
     control,
     register: registerForm,
@@ -84,10 +88,12 @@ export const FormBlueprint: React.FC<FormBlueprintProps> = ({}) => {
     });
     return exists;
   };
-  const onSubmit = (data: DynaFormFieldsBlueprint) => {
-    console.log(formValues);
+  const onSubmit = (data) => {
+    console.log(data.dataType["value"]);
+    data.dataType = data.dataType["value"];
     const exists = formFieldExists(formValues, data);
     console.log(exists);
+
     if (!exists) {
       setFormValues((formValues) => [...formValues, { ...data }]);
     } else {
@@ -107,9 +113,9 @@ export const FormBlueprint: React.FC<FormBlueprintProps> = ({}) => {
       formFields: { ...formValues },
     };
     console.log(obj);
-    axios({
+    api({
       method: "post",
-      url: "http://localhost:5000/form",
+      url: "/form",
       data: obj,
     })
       .then(function () {
@@ -187,7 +193,7 @@ export const FormBlueprint: React.FC<FormBlueprintProps> = ({}) => {
                   name="assignedTo"
                   control={control}
                   render={({ field }) => (
-                    <ReactSelect {...field} options={assignee} />
+                    <Select {...field} options={assignee} />
                   )}
                 />
               </FormControl>
@@ -209,10 +215,17 @@ export const FormBlueprint: React.FC<FormBlueprintProps> = ({}) => {
               </FormControl>
               <FormControl isRequired ml={3}>
                 <FormLabel htmlFor="first-name">Type</FormLabel>
-                <Select placeholder="Select option" {...register("dataType")}>
-                  <option value={"file"}>File Upload</option>
-                  <option value={"text"}>Text</option>
-                </Select>
+                <Controller
+                  name="dataType"
+                  control={control2}
+                  render={({ field }) => (
+                    <Select
+                      {...field}
+                      options={typeOptions}
+                      selectedOptionStyle="check"
+                    />
+                  )}
+                />
               </FormControl>
             </Flex>
             <FormControl isRequired mb={4}>

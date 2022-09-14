@@ -23,6 +23,7 @@ import {
 } from "@chakra-ui/react";
 import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/router";
+import { useForms } from "../utils/formsFetcher";
 export interface FormField {
   id: number;
   createdAt: Date;
@@ -46,15 +47,18 @@ export interface Form {
 }
 const forms = () => {
   const router = useRouter();
-  const { isLoading, error, data } = useQuery(["repoData"], () =>
-    fetch("http://localhost:5000/form/", {}).then((res) => res.json())
-  );
+  // const { isLoading, error, data } = useQuery(["repoData"], () =>
+  //   fetch("http://localhost:5000/form/", {}).then((res) => res.json())
+  // );
+
+  const { data, isLoading, isError } = useForms();
+
   if (isLoading) return <Box>Loading...</Box>;
 
-  if (error instanceof Error)
+  if (isError instanceof Error)
     return (
       <Skeleton>
-        <Box>An error has occurred: ${error.message}</Box>
+        <Box>An error has occurred: ${isError.message}</Box>
       </Skeleton>
     );
 
@@ -67,41 +71,43 @@ const forms = () => {
       );
     }
     return (
-      <TableContainer>
-        <Table variant="simple">
-          <Thead>
-            <Tr>
-              <Th>Title</Th>
-              <Th>Customer Name</Th>
-              <Th>Company Name</Th>
-              <Th>Fields</Th>
-              <Th>Actions</Th>
-            </Tr>
-          </Thead>
-          <Tbody>
-            {data.map((form: Form) => {
-              return (
-                <Tr key={form.id}>
-                  <Td>{form.title}</Td>
-                  <Td>{form.customerName}</Td>
-                  <Td>{form.customerCompanyName}</Td>
-                  <Td>{form.formFields.length}</Td>
-                  <Td>
-                    <IconButton
-                      variant="solid"
-                      colorScheme="gray"
-                      isRound={true}
-                      aria-label="Send email"
-                      onClick={() => router.push(`/form/${form.id}`)}
-                      icon={<EditIcon />}
-                    />
-                  </Td>
-                </Tr>
-              );
-            })}
-          </Tbody>
-        </Table>
-      </TableContainer>
+      <Container maxW={"80%"} my={3}>
+        <TableContainer>
+          <Table variant="simple">
+            <Thead>
+              <Tr>
+                <Th>Title</Th>
+                <Th>Customer Name</Th>
+                <Th>Company Name</Th>
+                <Th>Fields</Th>
+                <Th>Actions</Th>
+              </Tr>
+            </Thead>
+            <Tbody>
+              {data.map((form: Form) => {
+                return (
+                  <Tr key={form.id}>
+                    <Td>{form.title}</Td>
+                    <Td>{form.customerName}</Td>
+                    <Td>{form.customerCompanyName}</Td>
+                    <Td>{form.formFields.length}</Td>
+                    <Td>
+                      <IconButton
+                        variant="solid"
+                        colorScheme="gray"
+                        isRound={true}
+                        aria-label="Send email"
+                        onClick={() => router.push(`/form/${form.id}`)}
+                        icon={<EditIcon />}
+                      />
+                    </Td>
+                  </Tr>
+                );
+              })}
+            </Tbody>
+          </Table>
+        </TableContainer>
+      </Container>
     );
   }
 };
